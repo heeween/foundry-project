@@ -6,11 +6,6 @@ import {PriceConverter} from "./PriceConverter.sol";
 
 error FundMe__NotOwner();
 
-// 675790
-// 675790 580836
-// 549641
-// 576281
-// 527022
 contract FundMe {
     using PriceConverter for uint256;
 
@@ -35,6 +30,16 @@ contract FundMe {
 
     function getVersion() public view returns (uint256) {
         return s_priceFeed.version();
+    }
+
+    function cheaperWithdraw() public onlyOwner {
+        uint256 funderLength = s_funders.length;
+        for (uint256 funderIndex = 0; funderIndex < funderLength; funderIndex++) {
+            address funder = s_funders[funderIndex];
+            s_addressToAmoutFunded[funder] = 0;
+        }
+        s_funders = new address[](0);
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     function withdraw() public onlyOwner {
@@ -67,5 +72,9 @@ contract FundMe {
 
     function getFunder(uint256 index) public view returns (address) {
         return s_funders[index];
+    }
+
+    function getOwner() public view returns (address) {
+        return i_owner;
     }
 }
